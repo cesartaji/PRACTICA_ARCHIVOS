@@ -212,3 +212,92 @@ create table COSTO_EVENTO(
 
 	ALTER TABLE EVENTO ADD fecha_hora timestamp constraint nn_evento_fecha_hora not null;
 
+-- 3. Todos los eventos de las olimpiadas deben ser programados del 24 de julio
+--    de 2020 a partir de las 9:00:00 hasta el 09 de agosto de 2020 hasta las 20:00:00.
+
+	ALTER TABLE EVENTO ADD constraint fecha_inicial CHECK 
+       (fecha_hora > to_timestamp('24 07 2020 09:00:00','DD MM YYYY HH24:MI:SS'));
+
+	ALTER TABLE EVENTO ADD constraint fecha_final CHECK 
+       (fecha_hora <= to_timestamp('09 08 2020 20:00:00','DD MM YYYY HH24:MI:SS'));
+
+
+
+-- 4. Se decidió que las ubicación de los eventos se registrarán previamente en
+--    una tabla y que en la tabla “Evento” sólo se almacenara la llave foránea
+--    según el código del registro de la ubicación, para esto debe realizar lo
+--    siguiente:
+
+-- a.Crear la tabla llamada “Sede”. 
+
+	create table SEDE(
+		cod_sede integer,
+		sede varchar(50) constraint nn_sede_sede not null,
+		constraint pk_cod_sede primary key(cod_sede)
+	);
+
+-- b. Cambiar el tipo de dato de la columna Ubicación de la tabla Evento por un tipo entero.
+
+	ALTER TABLE EVENTO ALTER COLUMN ubicacion TYPE integer USING ubicacion::integer; 
+
+-- c. Crear una llave foránea en la columna Ubicación de la tabla Evento y
+--    referenciarla a la columna código de la tabla Sede, la que fue creada en el paso anterior
+
+	ALTER TABLE EVENTO ADD constraint fk_evento_cod_sede foreign key(ubicacion)references 
+	SEDE(cod_sede); 
+
+	
+-- 5.  Se revisó la información de los miembros que se tienen actualmente y antes
+--     de que se ingresen a la base de datos el Comité desea que a los miembros
+--     que no tengan número telefónico se le ingrese el número por Default 0 al
+--     momento de ser cargados a la base de datos
+
+	ALTER TABLE MIEMBRO ALTER COLUMN telefono SET DEFAULT 0; 
+
+
+	
+-- 6. Generar el script necesario para hacer la inserción de datos a las tablas requeridas.
+
+	-- INSETAR EN TABLA PAIS
+	INSERT INTO PAIS VALUES (1,'Guatemala');	
+	INSERT INTO PAIS VALUES (2,'Francia');	
+	INSERT INTO PAIS VALUES (3,'Argentina');	
+	INSERT INTO PAIS VALUES (4,'Alemania');	
+	INSERT INTO PAIS VALUES (5,'Italia');	
+	INSERT INTO PAIS VALUES (6,'Brasil');	
+	INSERT INTO PAIS VALUES (7,'Estados Unidos');	
+
+	-- INSETAR EN TABLA PROFESION
+	INSERT INTO PROFESION VALUES (1,'Médico');	
+	INSERT INTO PROFESION VALUES (2,'Arquitecto');	
+	INSERT INTO PROFESION VALUES (3,'Ingeniero');	
+	INSERT INTO PROFESION VALUES (4,'Secretaria');	
+	INSERT INTO PROFESION VALUES (5,'Auditor');
+
+	-- INSETAR EN TABLA MIEMBRO
+	INSERT INTO MIEMBRO (cod_miembro,nombre,apellido,edad,residencia,PAIS_cod_pais,PROFESION_cod_prof) 
+	VALUES (1,'Scott','Mitchell',32,'1092 Highland Drive Manitowoc, WI 54220',7,3);
+
+	INSERT INTO MIEMBRO (cod_miembro,nombre,apellido,edad,telefono,residencia,PAIS_cod_pais,PROFESION_cod_prof) 
+	VALUES (2,'Fanette','Poulin',25,25075853,'49, boulevard Aristide Briand 76120 LEGRAND-QUEVILLY',2,4);
+
+	INSERT INTO MIEMBRO (cod_miembro,nombre,apellido,edad,residencia,PAIS_cod_pais,PROFESION_cod_prof) 
+	VALUES (3,'Laura','Cunha Silva',55,'Rua Onze, 86 Uberaba-MG',6,5);
+
+	INSERT INTO MIEMBRO (cod_miembro,nombre,apellido,edad,telefono,residencia,PAIS_cod_pais,PROFESION_cod_prof) 
+	VALUES (4,'Juan José','López',38,36985247,'26 calle 4-10 zona 11',1,2);
+
+	INSERT INTO MIEMBRO (cod_miembro,nombre,apellido,edad,telefono,residencia,PAIS_cod_pais,PROFESION_cod_prof) 
+	VALUES (5,'Arcangela','Panicucci',39,391664921,'Via Santa Teresa, 11490010-Geraci Siculo PA',5,1);
+
+
+	INSERT INTO MIEMBRO (cod_miembro,nombre,apellido,edad,residencia,PAIS_cod_pais,PROFESION_cod_prof) 
+	VALUES (6,'Jeuel','Villalpando',31,'Acuña de Figeroa 610680101 Playa Pascual',3,5);
+		
+
+-- 15. Todos los atletas que se registren deben cumplir con ser menores a 25 años.
+--     De lo contrario no se debe poder registrar a un atleta en la base de datos. 
+
+	ALTER TABLE ATLETA ADD CONSTRAINT comprobar_edad CHECK edad < 25;
+
+

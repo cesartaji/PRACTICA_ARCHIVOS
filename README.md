@@ -1,4 +1,5 @@
 # PRACTICA_ARCHIVOS
 Script para crear BD en postgres
 
-video: 
+video: https://youtu.be/6hOqoql0be8
+
